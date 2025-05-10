@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NoKos Panel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #0a4d94;
+      color: white;
+      padding: 15px 20px;
+      font-size: 20px;
+    }
+    .container {
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 250px;
+      background: #ffffff;
+      border-right: 1px solid #ddd;
+      padding: 10px;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+    .nomor-item {
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+    .nomor-item:hover {
+      background: #f0f0f0;
+    }
+    .sms-box {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>Panel NoKos</header>
+  <div class="container">
+    <div class="sidebar" id="nomorList">Memuat nomor...</div>
+    <div class="content" id="smsContent">Pilih nomor di kiri untuk melihat SMS</div>
+  </div>
+
+  <script>
+    let nomorData = {};
+    const nomorList = document.getElementById('nomorList');
+    const smsContent = document.getElementById('smsContent');
+
+    fetch("http://localhost:5000/api/sms")
+      .then(res => res.json())
+      .then(data => {
+        nomorData = data;
+        nomorList.innerHTML = '';
+        Object.keys(data).forEach(nomor => {
+          const item = document.createElement('div');
+          item.className = 'nomor-item';
+          item.textContent = nomor;
+          item.onclick = () => showSMS(nomor);
+          nomorList.appendChild(item);
+        });
+      })
+      .catch(err => {
+        nomorList.textContent = 'Gagal memuat nomor.';
+        console.error(err);
+      });
+
+    function showSMS(nomor) {
+      const smsList = nomorData[nomor];
+      smsContent.innerHTML = `<h2>${nomor}</h2>`;
+      smsList.forEach(pesan => {
+        const box = document.createElement('div');
+        box.className = 'sms-box';
+        box.textContent = pesan;
+        smsContent.appendChild(box);
+      });
+    }
+  </script>
+</body>
+</html>
